@@ -312,11 +312,11 @@ $$
 </p>
 <p>また線形結合を取り直して実数にした、実数球面調和関数 $Y_{lm}(\theta,\phi)$ を計算することもできる。</p>
 <p>$$
-Y_{lm}
+Y_{lm}(\theta,\phi)
 = \begin{cases}
-  \frac{(-1)^m Y_l^{|m|} - Y_l^{-|m|}}{\sqrt{2} i} = \sqrt{2} (-1)^{|m|} Y_l^{|m|}(\theta, 0) \sin(|m|\phi), &amp; (-l \le m &lt; 0), \\
+  \frac{(-1)^m Y_l^{|m|}(\theta,\phi) - Y_l^{-|m|}(\theta,\phi)}{\sqrt{2} i} = \sqrt{2} (-1)^{|m|} Y_l^{|m|}(\theta, 0) \sin(|m|\phi), &amp; (-l \le m &lt; 0), \\
   Y_l^0 = Y_l^0(\theta, 0), &amp; (m = 0), \\
-  \frac{(-1)^m Y_l^{|m|} + Y_l^{-|m|}}{\sqrt{2}} = \sqrt{2} (-1)^{|m|} Y_l^{|m|}(\theta, 0) \cos(|m|\phi), &amp; (0 &lt; m \le l).
+  \frac{(-1)^m Y_l^{|m|}(\theta,\phi) + Y_l^{-|m|}(\theta,\phi)}{\sqrt{2}} = \sqrt{2} (-1)^{|m|} Y_l^{|m|}(\theta, 0) \cos(|m|\phi), &amp; (0 &lt; m \le l).
 \end{cases}
 $$</p>
 <p><div class="codehilite"><pre><span></span><code><span class="cp">#include</span> <span class="cpf"><a href="../cmath.html">&lt;cmath&gt;</a></span><span class="cp"></span>
