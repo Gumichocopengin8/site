@@ -288,7 +288,7 @@
 </ul>
 <h3><a href="#remarks-lgamma" id="remarks-lgamma">lgamma との使い分け</a></h3>
 <p>ガンマ関数は急激に増加し容易にオーバーフローするので、代わりにガンマ関数の結果を自然対数で返す関数 <code><a href="lgamma.html">lgamma</a></code> を用いた方が良いことが多くある。
-例えばガンマ関数の比を計算する場合には、 ガンマ関数の対数の差を取ってから指数関数 <code><a href="exp.html">std::exp</a></code> を適用するのが懸命である。</p>
+例えばガンマ関数の比を計算する場合には、 ガンマ関数の対数の差を取ってから指数関数 <code><a href="exp.html">std::exp</a></code> を適用するのが賢明である。</p>
 <p>$$ \frac{\Gamma(2026)}{\Gamma(2025)} = \exp[\ln\Gamma(2026) - \ln\Gamma(2025)] $$</p>
 <p><div class="yata" id="f82bf495e2444a250b3783e24beb4b278a7ba10a"><div class="codehilite"><pre><span></span><code><span class="cp">#include</span> <span class="cpf"><a href="../cmath.html">&lt;cmath&gt;</a></span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf"><a href="../iostream.html">&lt;iostream&gt;</a></span><span class="cp"></span>

@@ -2,14 +2,14 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>cpprefjp - C++日本語リファレンス</title>
   <link href="https://cpprefjp.github.io" />
-  <updated>2025-02-09T09:34:45.504003</updated>
-  <id>27f70936-2401-484c-a4d7-cb4be6f73475</id>
+  <updated>2025-02-09T09:47:06.956102</updated>
+  <id>7316d6c6-9af1-4066-9eef-e104653ef956</id>
 
   
     <entry>
       <title>lgamma -- cmath (tgamma): lgamma を使うべき場合について記述</title>
       <link href="https://cpprefjp.github.io/reference/cmath/lgamma.html"/>
-      <id>73b952c31a864d9c2e5482d1f2a5fd7b4c91ed50:reference/cmath/lgamma.md</id>
+      <id>932634a1150d4190d7060f9810f699e98061f462:reference/cmath/lgamma.md</id>
       <updated>2025-02-09T16:31:26+09:00</updated>
       
         <summary type="html">&lt;pre&gt;&lt;code&gt;diff --git a/reference/cmath/lgamma.md b/reference/cmath/lgamma.md
@@ -37,11 +37,11 @@ index 60de4faba..03027e27d 100644
     <entry>
       <title>tgamma -- cmath (tgamma): lgamma を使うべき場合について記述</title>
       <link href="https://cpprefjp.github.io/reference/cmath/tgamma.html"/>
-      <id>73b952c31a864d9c2e5482d1f2a5fd7b4c91ed50:reference/cmath/tgamma.md</id>
+      <id>932634a1150d4190d7060f9810f699e98061f462:reference/cmath/tgamma.md</id>
       <updated>2025-02-09T16:31:26+09:00</updated>
       
         <summary type="html">&lt;pre&gt;&lt;code&gt;diff --git a/reference/cmath/tgamma.md b/reference/cmath/tgamma.md
-index 4dcbd333a..62e7b677a 100644
+index 4dcbd333a..615ff7717 100644
 --- a/reference/cmath/tgamma.md
 +++ b/reference/cmath/tgamma.md
 @@ -64,6 +64,32 @@ $$ \Gamma (x) = \int_0^\infty t^{x-1} e^{-t} dt $$
@@ -50,7 +50,7 @@ index 4dcbd333a..62e7b677a 100644
  
 +### &amp;lt;a id=&amp;#34;remarks-lgamma&amp;#34; href=&amp;#34;#remarks-lgamma&amp;#34;&amp;gt;lgamma との使い分け&amp;lt;/a&amp;gt;
 +ガンマ関数は急激に増加し容易にオーバーフローするので、代わりにガンマ関数の結果を自然対数で返す関数 [`lgamma`](lgamma.md) を用いた方が良いことが多くある。
-+例えばガンマ関数の比を計算する場合には、 ガンマ関数の対数の差を取ってから指数関数 [`std::exp`](exp.md) を適用するのが懸命である。
++例えばガンマ関数の比を計算する場合には、 ガンマ関数の対数の差を取ってから指数関数 [`std::exp`](exp.md) を適用するのが賢明である。
 +
 +$$ \frac{\Gamma(2026)}{\Gamma(2025)} = \exp[\ln\Gamma(2026) - \ln\Gamma(2025)] $$
 +
