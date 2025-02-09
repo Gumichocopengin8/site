@@ -1,0 +1,479 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>cpprefjp - C++日本語リファレンス</title>
+  <link href="https://cpprefjp.github.io" />
+  <updated>2025-02-09T07:02:54.992450</updated>
+  <id>12994fbc-d7ad-494d-ab30-05e4d417c88e</id>
+
+  
+    <entry>
+      <title>legendre -- cmath (std::legendre): legendre の範囲外エラーについて記述</title>
+      <link href="https://cpprefjp.github.io/reference/cmath/legendre.html"/>
+      <id>4c2ecf1cf8f08e45d0deb6cd1b1bad53c89d7c05:reference/cmath/legendre.md</id>
+      <updated>2025-02-09T15:51:08+09:00</updated>
+      
+        <summary type="html">&lt;pre&gt;&lt;code&gt;diff --git a/reference/cmath/legendre.md b/reference/cmath/legendre.md
+index 5e35b3d88..9c9e54241 100644
+--- a/reference/cmath/legendre.md
++++ b/reference/cmath/legendre.md
+@@ -103,6 +103,9 @@ legendre(3, 1) = 1
+ - [ICC](/implementation.md#icc): ??
+ - [Visual C++](/implementation.md#visual_cpp): ??
+ 
++### 備考
++- GCC 7, 8 には $x$ として [-1.0, 1.0] の範囲外の値を渡した時に、[`std::domain_error`](/reference/stdexcept.md) を投げるバグがあった (GCC 7.5, 8.2, 8.4 [mark verified])。
++  GCC 9 以降では直っている (GCC 9.3, 10.5, 11.4, 12.3, 13.2, 15.0 [mark verified])。
+ 
+ ## 実装例
+ ### 閉形式
+&lt;/code&gt;&lt;/pre&gt;</summary>
+      
+      <author>
+        <name>Koichi Murase</name>
+        <email>myoga.murase@gmail.com</email>
+      </author>
+    </entry>
+  
+    <entry>
+      <title>assoc_legendre -- cmath (assoc_legendre): 負の m について計算する方法の記述</title>
+      <link href="https://cpprefjp.github.io/reference/cmath/assoc_legendre.html"/>
+      <id>56b49dd72658f3572be02d46c53b83b2621dfad2:reference/cmath/assoc_legendre.md</id>
+      <updated>2025-02-09T15:38:35+09:00</updated>
+      
+        <summary type="html">&lt;pre&gt;&lt;code&gt;diff --git a/reference/cmath/assoc_legendre.md b/reference/cmath/assoc_legendre.md
+index dc96d1b09..a6c436b21 100644
+--- a/reference/cmath/assoc_legendre.md
++++ b/reference/cmath/assoc_legendre.md
+@@ -59,6 +59,27 @@ $$
+ - `l &amp;gt;= 128` の場合、この関数の呼び出しの効果は実装定義である
+ - (1) : C++23では、拡張浮動小数点数型を含む浮動小数点数型へのオーバーロードとして定義された
+ 
++この標準関数は $m$ が正の場合にしか対応していない。
++一方でルジャンドル陪関数はロドリゲスの公式を用いて負の $m$ に対して自然に拡張され、
++このことは球面調和関数を定義する上でも使われる。
++負の $m$ に対してもルジャンドル陪関数を計算する必要がある場合は、関係式
++$$ P_l^{-m}(x) = (-1)^m \frac{(l-m)!}{(l+m)!)} P_l^m(x) $$
++を用いて計算する必要がある。
++
++```cpp
++#include &amp;lt;cmath&amp;gt;
++
++// 実装例
++double assoc_legendre(unsigned l, int m, double x) {
++  if (m &amp;gt;= 0)
++    return std::assoc_legendre(l, (unsigned) m, x);
++  else
++    return std::pow(-1.0, m) * (std::tgamma(1.0 + l - m) / std::tgamma(1.0 + l + m)) * std::assoc_legendre(l, (unsigned) -m, x);
++}
++```
++
++上記の例では簡単のために階乗をガンマ関数 $n! = \Gamma(n + 1)$ ([`tgamma`](tgamma.md)) で計算しているが、
++計算効率やオーバーフローなどを考えると、直接 $(l + m)\dots(l-m + 1)$ で割り算したり、係数を事前計算しておくなど工夫すると良い。
+ 
+ ## 例
+ ```cpp example
+&lt;/code&gt;&lt;/pre&gt;</summary>
+      
+      <author>
+        <name>Koichi Murase</name>
+        <email>myoga.murase@gmail.com</email>
+      </author>
+    </entry>
+  
+    <entry>
+      <title>sph_legendre -- cmath (std::sph_legendre): C++20 円周率 std::numbers::pi を使用するように例を更新</title>
+      <link href="https://cpprefjp.github.io/reference/cmath/sph_legendre.html"/>
+      <id>9f1a29543b235ba2302b20dc77c30d55e64f0b65:reference/cmath/sph_legendre.md</id>
+      <updated>2025-02-09T15:26:35+09:00</updated>
+      
+        <summary type="html">&lt;pre&gt;&lt;code&gt;diff --git a/reference/cmath/sph_legendre.md b/reference/cmath/sph_legendre.md
+index fcd53c84b..20235cf24 100644
+--- a/reference/cmath/sph_legendre.md
++++ b/reference/cmath/sph_legendre.md
+@@ -120,10 +120,9 @@ double real_sph_harmonics_real(unsigned l, int m, double theta, double phi) {
+ ```cpp example
+ #include &amp;lt;cmath&amp;gt;
+ #include &amp;lt;complex&amp;gt;
++#include &amp;lt;numbers&amp;gt;
+ #include &amp;lt;iostream&amp;gt;
+ 
+-constexpr double pi = 3.141592653589793;
+-
+ // 球面調和関数
+ std::complex&amp;lt;double&amp;gt; sph_harmonics(unsigned l, int m, double theta, double phi) {
+   if (m &amp;gt;= 0)
+@@ -139,9 +138,9 @@ int main() {
+ 
+   std::cout &amp;lt;&amp;lt; &amp;#34;#θ / π\tφ / π\tY_&amp;#34; &amp;lt;&amp;lt; l &amp;lt;&amp;lt; &amp;#34;^&amp;#34; &amp;lt;&amp;lt; m &amp;lt;&amp;lt; &amp;#34;(θ, φ)\n&amp;#34;;
+   for (double t : {0., 0.25, 0.5, 0.75, 1.}) {
+-    double theta = t * pi;
++    double theta = t * std::numbers::pi;
+     for (double p : {0., 0.25, 0.5, 0.75, 1., 1.25, 1.5, 1.75, 2.}) {
+-      double phi = p * pi / 4;
++      double phi = p * std::numbers::pi / 4;
+       std::cout &amp;lt;&amp;lt; t &amp;lt;&amp;lt; &amp;#34;\t&amp;#34; &amp;lt;&amp;lt; p &amp;lt;&amp;lt; &amp;#34;\t&amp;#34; &amp;lt;&amp;lt; sph_harmonics(l, m, theta, phi) &amp;lt;&amp;lt; &amp;#34;\n&amp;#34;;
+       if (t == 0 || t == 1) break;
+     }
+&lt;/code&gt;&lt;/pre&gt;</summary>
+      
+      <author>
+        <name>Koichi Murase</name>
+        <email>myoga.murase@gmail.com</email>
+      </author>
+    </entry>
+  
+    <entry>
+      <title>sph_legendre -- cmath (std::sph_legendre): 球面調和関数と使い方について記述</title>
+      <link href="https://cpprefjp.github.io/reference/cmath/sph_legendre.html"/>
+      <id>4b505cc95e1df34af7c9988ee15a315b94264989:reference/cmath/sph_legendre.md</id>
+      <updated>2025-02-09T15:25:05+09:00</updated>
+      
+        <summary type="html">&lt;pre&gt;&lt;code&gt;diff --git a/reference/cmath/sph_legendre.md b/reference/cmath/sph_legendre.md
+index 1f32cba3d..fcd53c84b 100644
+--- a/reference/cmath/sph_legendre.md
++++ b/reference/cmath/sph_legendre.md
+@@ -47,7 +47,7 @@ namespace std {
+ 
+ 
+ ## 戻り値
+-引数 `l`, `m`, `theta` について $Y_l^m(\theta, 0)$ を返す。
++引数 `l`, `m`, `theta` について $Y_l^m(\theta, 0)$ (ただし $0 \le m \le l$) を返す。
+ $Y_l^m(\theta, \phi)$ は球面調和関数
+ $$
+ Y_l^m(\theta, \phi) = (-1)^m \sqrt{\frac{2l + 1}{4\pi} \frac{(l - m)!}{(l + m)!}} P_l^m(\cos \theta) \exp(i m \phi)
+@@ -56,11 +56,65 @@ $$
+ である。
+ $P_l^m$ はルジャンドル陪関数 ([`assoc_legendre`](assoc_legendre.md)) である。
+ 
+-
+ ## 備考
+ - `l &amp;gt;= 128` の場合、この関数の呼び出しの効果は実装定義である
+ - (1) : C++23では、拡張浮動小数点数型を含む浮動小数点数型へのオーバーロードとして定義された
+ 
++球面調和関数として使う場合には $\phi$ 依存性は自分で与える必要がある。
++また、$m\ge0$ にしか対応していないので $m &amp;lt; 0$ の時は、自分で $Y_l^{|m|}(\theta,0)$ の値を調節して使う必要がある。
++ルジャンドル陪関数の性質 $P_l^{-m}(x) = (-1)^m \frac{(l - m)!}{(l + m)!} P_l^m(x)$ より、
++$$
++\begin{align*}
++Y_l^m(\theta, \phi)
++  &amp;amp;= (-1)^m \sqrt{\frac{2l + 1}{4\pi} \frac{(l - m)!}{(l + m)!}} P_l^m(\cos \theta) \exp(i m \phi) \\
++  &amp;amp;= (-1)^{(m+|m|)/2} \sqrt{\frac{2l + 1}{4\pi} \frac{(l - |m|)!}{(l + |m|)!}} P_l^{|m|}(\cos \theta) \exp(i m \phi) \\
++  &amp;amp;= \begin{cases}
++    Y_l^{m}(\theta, 0) e^{im\phi}, &amp;amp; (0 \le m \le l), \\
++    (-1)^{|m|} Y_l^{|m|}(\theta, 0) e^{im\phi}, &amp;amp; (-l \le m &amp;lt; 0).
++  \end{cases}
++\end{align*}
++$$
++で与えられる。
++
++```cpp
++#include &amp;lt;cmath&amp;gt;
++#include &amp;lt;complex&amp;gt;
++#include &amp;lt;numbers&amp;gt;
++
++// 球面調和関数の実装例
++std::complex&amp;lt;double&amp;gt; sph_harmonics(unsigned l, int m, double theta, double phi) {
++  if (m &amp;gt;= 0)
++    return std::sph_legendre(l, (unsigned) m, theta) * std::polar(1.0, m * phi);
++  else
++    return std::sph_legendre(l, (unsigned) -m, theta) * std::polar(1.0, m * (phi - std::numbers::pi));
++}
++```
++
++また線形結合を取り直して実数にした、実数球面調和関数 $Y_{lm}(\theta,\phi)$ を計算することもできる。
++
++$$
++Y_{lm}
++= \begin{cases}
++  \frac{(-1)^m Y_l^{|m|} - Y_l^{-|m|}}{\sqrt{2} i} = \sqrt{2} (-1)^{|m|} Y_l^{|m|}(\theta, 0) \sin(|m|\phi), &amp;amp; (-l \le m &amp;lt; 0), \\
++  Y_l^0 = Y_l^0(\theta, 0), &amp;amp; (m = 0), \\
++  \frac{(-1)^m Y_l^{|m|} + Y_l^{-|m|}}{\sqrt{2}} = \sqrt{2} (-1)^{|m|} Y_l^{|m|}(\theta, 0) \cos(m|\phi|), &amp;amp; (0 &amp;lt; m \le l).
++\end{cases}
++$$
++
++```cpp
++#include &amp;lt;cmath&amp;gt;
++#include &amp;lt;numbers&amp;gt;
++
++// 実数球面調和関数の実装例
++double real_sph_harmonics_real(unsigned l, int m, double theta, double phi) {
++  if (m == 0)
++    return std::sph_legendre(l, 0u, theta);
++  else if (m &amp;gt; 0)
++    return std::numbers::sqrt2 * std::sph_legendre(l, (unsigned) m, theta) * std::cos(m * (phi - std::numbers::pi));
++  else
++    return std::numbers::sqrt2 * std::sph_legendre(l, (unsigned) -m, theta) * std::sin(-m * (phi - std::numbers::pi));
++}
++```
+ 
+ ## 例
+ ```cpp example
+@@ -71,8 +125,11 @@ $P_l^m$ はルジャンドル陪関数 ([`assoc_legendre`](assoc_legendre.md)) 
+ constexpr double pi = 3.141592653589793;
+ 
+ // 球面調和関数
+-std::complex&amp;lt;double&amp;gt; sph_harmonics(unsigned l, unsigned m, double theta, double phi) {
+-  return std::sph_legendre(l, m, theta) * std::polar(1.0, m * phi);
++std::complex&amp;lt;double&amp;gt; sph_harmonics(unsigned l, int m, double theta, double phi) {
++  if (m &amp;gt;= 0)
++    return std::sph_legendre(l, (unsigned) m, theta) * std::polar(1.0, m * phi);
++  else
++    return std::sph_legendre(l, (unsigned) -m, theta) * std::polar(1.0, m * (phi - std::numbers::pi));
+ }
+ 
+ int main() {
+&lt;/code&gt;&lt;/pre&gt;</summary>
+      
+      <author>
+        <name>Koichi Murase</name>
+        <email>myoga.murase@gmail.com</email>
+      </author>
+    </entry>
+  
+    <entry>
+      <title>flat_multiset -- add swap_free.md to flat_set (#1079)</title>
+      <link href="https://cpprefjp.github.io/reference/flat_set/flat_multiset.html"/>
+      <id>304f099f24e1aa8d5d8116d9cc34c930570d44fd:reference/flat_set/flat_multiset.md</id>
+      <updated>2025-02-09T09:02:52+09:00</updated>
+      
+        <summary type="html">&lt;pre&gt;&lt;code&gt;diff --git a/reference/flat_set/flat_multiset.md b/reference/flat_set/flat_multiset.md
+index db2cbe7ee..e6e3bd6ad 100644
+--- a/reference/flat_set/flat_multiset.md
++++ b/reference/flat_set/flat_multiset.md
+@@ -129,7 +129,7 @@ namespace std {
+ 
+ | 名前 | 説明 | 対応バージョン |
+ |------|------|----------------|
+-| [`swap`](flat_multiset/swap_free.md.nolink) | 2つの`flat_multiset`オブジェクトを入れ替える | C++23 |
++| [`swap`](flat_multiset/swap_free.md) | 2つの`flat_multiset`オブジェクトを入れ替える | C++23 |
+ 
+ 
+ ## 推論補助
+&lt;/code&gt;&lt;/pre&gt;</summary>
+      
+      <author>
+        <name>suomesta</name>
+        <email>shawn316michaels@gmail.com</email>
+      </author>
+    </entry>
+  
+    <entry>
+      <title>swap (非メンバ関数) -- add swap_free.md to flat_set (#1079)</title>
+      <link href="https://cpprefjp.github.io/reference/flat_set/flat_multiset/swap_free.html"/>
+      <id>304f099f24e1aa8d5d8116d9cc34c930570d44fd:reference/flat_set/flat_multiset/swap_free.md</id>
+      <updated>2025-02-09T09:02:52+09:00</updated>
+      
+        <summary type="html">&lt;pre&gt;&lt;code&gt;diff --git a/reference/flat_set/flat_multiset/swap_free.md b/reference/flat_set/flat_multiset/swap_free.md
+new file mode 100644
+index 000000000..f1e0c04ea
+--- /dev/null
++++ b/reference/flat_set/flat_multiset/swap_free.md
+@@ -0,0 +1,76 @@
++# swap (非メンバ関数)
++* flat_set[meta header]
++* std[meta namespace]
++* function template[meta id-type]
++* cpp23[meta cpp]
++
++```cpp
++namespace std {
++  template &amp;lt;class Key, class Compare, class KeyContainer&amp;gt;
++  void swap(flat_multiset&amp;lt;Key, Compare, KeyContainer&amp;gt;&amp;amp; x,
++            flat_multiset&amp;lt;Key, Compare, KeyContainer&amp;gt;&amp;amp; y); // (1) C++23
++}
++```
++
++## 概要
++2つの `flat_multiset` オブジェクトを入れ替える。
++
++
++## 効果
++`x.`[`swap`](swap.md)`(y)`
++
++
++## 例
++```cpp example
++#include &amp;lt;flat_set&amp;gt;
++#include &amp;lt;iostream&amp;gt;
++
++template &amp;lt;class Set&amp;gt;
++void print(const char* name, const Set&amp;amp; s)
++{
++  std::cout &amp;lt;&amp;lt; name &amp;lt;&amp;lt; &amp;#34; : {&amp;#34;;
++
++  bool first = true;
++
++  for (const auto&amp;amp; x : s) {
++    if (first) {
++      first = false;
++    }
++    else {
++      std::cout &amp;lt;&amp;lt; &amp;#34;, &amp;#34;;
++    }
++    std::cout &amp;lt;&amp;lt; x;
++  }
++  std::cout &amp;lt;&amp;lt; &amp;#34;}&amp;#34; &amp;lt;&amp;lt; std::endl;
++}
++
++int main()
++{
++  std::flat_multiset&amp;lt;int&amp;gt; fs1 = {10, 20, 30};
++
++  std::flat_multiset&amp;lt;int&amp;gt; fs2 = {5, 15};
++
++  // fs1とfs2を入れ替える
++  std::swap(fs1, fs2);
++
++  print(&amp;#34;fs1&amp;#34;, fs1);
++  print(&amp;#34;fs2&amp;#34;, fs2);
++}
++```
++* std::swap[color ff0000]
++
++### 出力
++```
++fs1 : {5, 15}
++fs2 : {10, 20, 30}
++```
++
++
++## バージョン
++### 言語
++- C++23
++
++### 処理系
++- [Clang](/implementation.md#clang): ??
++- [GCC](/implementation.md#gcc): ??
++- [Visual C++](/implementation.md#visual_cpp): ??
+&lt;/code&gt;&lt;/pre&gt;</summary>
+      
+      <author>
+        <name>suomesta</name>
+        <email>shawn316michaels@gmail.com</email>
+      </author>
+    </entry>
+  
+    <entry>
+      <title>flat_set -- add swap_free.md to flat_set (#1079)</title>
+      <link href="https://cpprefjp.github.io/reference/flat_set/flat_set.html"/>
+      <id>304f099f24e1aa8d5d8116d9cc34c930570d44fd:reference/flat_set/flat_set.md</id>
+      <updated>2025-02-09T09:02:52+09:00</updated>
+      
+        <summary type="html">&lt;pre&gt;&lt;code&gt;diff --git a/reference/flat_set/flat_set.md b/reference/flat_set/flat_set.md
+index 3ba236cfb..c4715fbc2 100644
+--- a/reference/flat_set/flat_set.md
++++ b/reference/flat_set/flat_set.md
+@@ -129,7 +129,7 @@ namespace std {
+ 
+ | 名前 | 説明 | 対応バージョン |
+ |------|------|----------------|
+-| [`swap`](flat_set/swap_free.md.nolink) | 2つの`flat_set`オブジェクトを入れ替える | C++23 |
++| [`swap`](flat_set/swap_free.md) | 2つの`flat_set`オブジェクトを入れ替える | C++23 |
+ 
+ 
+ ## 推論補助
+&lt;/code&gt;&lt;/pre&gt;</summary>
+      
+      <author>
+        <name>suomesta</name>
+        <email>shawn316michaels@gmail.com</email>
+      </author>
+    </entry>
+  
+    <entry>
+      <title>swap (非メンバ関数) -- add swap_free.md to flat_set (#1079)</title>
+      <link href="https://cpprefjp.github.io/reference/flat_set/flat_set/swap_free.html"/>
+      <id>304f099f24e1aa8d5d8116d9cc34c930570d44fd:reference/flat_set/flat_set/swap_free.md</id>
+      <updated>2025-02-09T09:02:52+09:00</updated>
+      
+        <summary type="html">&lt;pre&gt;&lt;code&gt;diff --git a/reference/flat_set/flat_set/swap_free.md b/reference/flat_set/flat_set/swap_free.md
+new file mode 100644
+index 000000000..a9efa2d0e
+--- /dev/null
++++ b/reference/flat_set/flat_set/swap_free.md
+@@ -0,0 +1,76 @@
++# swap (非メンバ関数)
++* flat_set[meta header]
++* std[meta namespace]
++* function template[meta id-type]
++* cpp23[meta cpp]
++
++```cpp
++namespace std {
++  template &amp;lt;class Key, class Compare, class KeyContainer&amp;gt;
++  void swap(flat_set&amp;lt;Key, Compare, KeyContainer&amp;gt;&amp;amp; x,
++            flat_set&amp;lt;Key, Compare, KeyContainer&amp;gt;&amp;amp; y); // (1) C++23
++}
++```
++
++## 概要
++2つの `flat_set` オブジェクトを入れ替える。
++
++
++## 効果
++`x.`[`swap`](swap.md)`(y)`
++
++
++## 例
++```cpp example
++#include &amp;lt;flat_set&amp;gt;
++#include &amp;lt;iostream&amp;gt;
++
++template &amp;lt;class Set&amp;gt;
++void print(const char* name, const Set&amp;amp; s)
++{
++  std::cout &amp;lt;&amp;lt; name &amp;lt;&amp;lt; &amp;#34; : {&amp;#34;;
++
++  bool first = true;
++
++  for (const auto&amp;amp; x : s) {
++    if (first) {
++      first = false;
++    }
++    else {
++      std::cout &amp;lt;&amp;lt; &amp;#34;, &amp;#34;;
++    }
++    std::cout &amp;lt;&amp;lt; x;
++  }
++  std::cout &amp;lt;&amp;lt; &amp;#34;}&amp;#34; &amp;lt;&amp;lt; std::endl;
++}
++
++int main()
++{
++  std::flat_set&amp;lt;int&amp;gt; fs1 = {10, 20, 30};
++
++  std::flat_set&amp;lt;int&amp;gt; fs2 = {5, 15};
++
++  // fs1とfs2を入れ替える
++  std::swap(fs1, fs2);
++
++  print(&amp;#34;fs1&amp;#34;, fs1);
++  print(&amp;#34;fs2&amp;#34;, fs2);
++}
++```
++* std::swap[color ff0000]
++
++### 出力
++```
++fs1 : {5, 15}
++fs2 : {10, 20, 30}
++```
++
++
++## バージョン
++### 言語
++- C++23
++
++### 処理系
++- [Clang](/implementation.md#clang): ??
++- [GCC](/implementation.md#gcc): ??
++- [Visual C++](/implementation.md#visual_cpp): ??
+&lt;/code&gt;&lt;/pre&gt;</summary>
+      
+      <author>
+        <name>suomesta</name>
+        <email>shawn316michaels@gmail.com</email>
+      </author>
+    </entry>
+  
+</feed>
